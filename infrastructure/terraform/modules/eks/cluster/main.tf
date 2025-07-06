@@ -2,8 +2,10 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-# KMS key for EKS cluster encryption
+# KMS key for EKS cluster encryption (disabled for testing environment to save costs)
 resource "aws_kms_key" "eks_cluster_key" {
+  count = var.environment != "testing" ? 1 : 0
+
   description             = "KMS key for EKS cluster ${var.cluster_name} encryption"
   deletion_window_in_days = 7
 
@@ -16,8 +18,10 @@ resource "aws_kms_key" "eks_cluster_key" {
 }
 
 resource "aws_kms_alias" "eks_cluster_key_alias" {
+  count = var.environment != "testing" ? 1 : 0
+
   name          = "alias/eks-cluster-${var.cluster_name}"
-  target_key_id = aws_kms_key.eks_cluster_key.key_id
+  target_key_id = aws_kms_key.eks_cluster_key[0].key_id
 }
 
 # CloudWatch Log Group for EKS cluster
@@ -47,11 +51,15 @@ resource "aws_eks_cluster" "cluster" {
     security_group_ids      = var.security_group_ids
   }
 
-  encryption_config {
-    provider {
-      key_arn = aws_kms_key.eks_cluster_key.arn
+  # Only enable encryption for non-testing environments
+  dynamic "encryption_config" {
+    for_each = var.environment != "testing" ? [1] : []
+    content {
+      provider {
+        key_arn = aws_kms_key.eks_cluster_key[0].arn
+      }
+      resources = ["secrets"]
     }
-    resources = ["secrets"]
   }
 
   enabled_cluster_log_types = var.enabled_cluster_log_types

@@ -60,12 +60,12 @@ output "cluster_platform_version" {
 
 output "kms_key_arn" {
   description = "The ARN of the KMS key used for cluster encryption"
-  value       = aws_kms_key.eks_cluster_key.arn
+  value       = var.environment != "testing" ? aws_kms_key.eks_cluster_key[0].arn : null
 }
 
 output "kms_key_id" {
   description = "The ID of the KMS key used for cluster encryption"
-  value       = aws_kms_key.eks_cluster_key.key_id
+  value       = var.environment != "testing" ? aws_kms_key.eks_cluster_key[0].key_id : null
 }
 
 output "cloudwatch_log_group_name" {

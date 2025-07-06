@@ -80,7 +80,7 @@ module "eks_cluster" {
   kubernetes_version       = var.kubernetes_version
 
   # VPC Configuration from Layer 1
-  subnet_ids         = data.terraform_remote_state.foundation.outputs.private_subnet_ids
+  subnet_ids         = data.terraform_remote_state.foundation.outputs.eks_node_subnet_ids
   security_group_ids = [data.terraform_remote_state.foundation.outputs.cluster_security_group_id]
 
   # API endpoint configuration
@@ -111,7 +111,7 @@ module "eks_node_groups" {
   node_group_role_arn = module.iam_service_roles.node_group_role_arn
 
   # VPC Configuration
-  subnet_ids         = data.terraform_remote_state.foundation.outputs.private_subnet_ids
+  subnet_ids         = data.terraform_remote_state.foundation.outputs.eks_node_subnet_ids
   security_group_ids = [data.terraform_remote_state.foundation.outputs.node_security_group_id]
 
   # Environment-specific configuration

@@ -257,7 +257,7 @@ Modern infrastructure stack for:
 
 ## Technology Versions (2025)
 
-- **Kubernetes:** 1.29+
+- **Kubernetes:** 1.33+
 - **Traefik:** 3.0+
 - **Prometheus:** 2.48+
 - **Grafana:** 10.4+

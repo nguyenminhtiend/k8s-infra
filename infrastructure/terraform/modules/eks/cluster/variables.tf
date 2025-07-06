@@ -20,7 +20,7 @@ variable "cluster_service_role_arn" {
 variable "kubernetes_version" {
   description = "Kubernetes version for the EKS cluster"
   type        = string
-  default     = "1.30"
+  default     = "1.33"
 }
 
 variable "subnet_ids" {

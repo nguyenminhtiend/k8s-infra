@@ -146,7 +146,7 @@ kubectl get nodes
 
 # Expected output:
 # NAME                                                STATUS   ROLES    AGE   VERSION
-# ip-10-0-x-x.ap-southeast-1.compute.internal       Ready    <none>   5m    v1.30.x
+# ip-10-0-x-x.ap-southeast-1.compute.internal       Ready    <none>   5m    v1.33.x
 ```
 
 ### Step 2: Verify EKS Add-ons

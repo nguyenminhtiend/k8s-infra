@@ -31,7 +31,7 @@ external_dns_txt_owner_id    = ""  # Will default to "external-dns-staging"
 
 # Cluster Autoscaler Configuration (Disabled - using Karpenter)
 cluster_autoscaler_enabled                           = false
-cluster_autoscaler_version                           = "1.30.0"
+cluster_autoscaler_version                           = "1.33.0"
 cluster_autoscaler_scale_down_delay_after_add        = "10m"
 cluster_autoscaler_scale_down_unneeded_time          = "10m"
 cluster_autoscaler_scale_down_utilization_threshold  = 0.5

@@ -169,7 +169,7 @@ infrastructure/terraform/modules/networking/subnets/
 ### 🏗️ **EKS Infrastructure Modules Created** ✅ CODE COMPLETE
 
 - **IAM Service Roles Module**: EKS cluster & node group IAM roles with required policies
-- **EKS Cluster Module**: Kubernetes 1.30 cluster with private endpoint, KMS encryption
+- **EKS Cluster Module**: Kubernetes 1.33 cluster with private endpoint, KMS encryption
 - **EKS Node Groups Module**: Environment-specific worker nodes (t3.micro for testing)
 - **IRSA Base Module**: IAM Roles for Service Accounts with OIDC trust policies
 - **Developer Roles Module**: Developer access with EKS, ECR, and IRSA permissions
@@ -251,7 +251,7 @@ cd infrastructure/terraform/layers/01-foundation
 
 ### **2024 Updates Applied**
 
-- ✅ **Latest Kubernetes**: Ready for v1.31
+- ✅ **Latest Kubernetes**: Ready for v1.33
 - ✅ **EFA Support**: For AI/ML workloads
 - ✅ **Updated Provider**: AWS provider ~> 5.0
 - ✅ **Modern Terraform**: Required version >= 1.0

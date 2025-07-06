@@ -30,7 +30,7 @@ variable "terraform_state_bucket" {
 variable "kubernetes_version" {
   description = "Kubernetes version for the EKS cluster"
   type        = string
-  default     = "1.30"
+  default     = "1.33"
 }
 
 variable "enable_public_access" {

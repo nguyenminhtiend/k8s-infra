@@ -7,7 +7,7 @@ aws_region     = "ap-southeast-1"
 terraform_state_bucket = "your-terraform-state-bucket"
 
 # EKS Cluster Configuration
-kubernetes_version = "1.30"
+kubernetes_version = "1.33"
 
 # API endpoint configuration - allow public access for staging
 enable_public_access = true

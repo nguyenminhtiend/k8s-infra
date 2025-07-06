@@ -753,7 +753,7 @@ This plan breaks down the EKS infrastructure into **small, manageable steps** th
   variable "kubernetes_version" {
     description = "Kubernetes version"
     type        = string
-    default     = "1.31"  # Latest stable version
+    default     = "1.33"  # Latest stable version
   }
 
   variable "subnet_ids" {

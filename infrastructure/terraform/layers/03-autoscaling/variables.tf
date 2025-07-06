@@ -138,7 +138,7 @@ variable "cluster_autoscaler_enabled" {
 variable "cluster_autoscaler_version" {
   description = "Version of Cluster Autoscaler"
   type        = string
-  default     = "1.30.0"
+  default     = "1.33.0"
 }
 
 variable "cluster_autoscaler_scale_down_delay_after_add" {

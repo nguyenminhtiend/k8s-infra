@@ -31,7 +31,7 @@ external_dns_txt_owner_id    = ""  # Will default to "external-dns-production"
 
 # Cluster Autoscaler Configuration (Backup to Karpenter)
 cluster_autoscaler_enabled                           = true  # Enabled as backup
-cluster_autoscaler_version                           = "1.30.0"
+cluster_autoscaler_version                           = "1.33.0"
 cluster_autoscaler_scale_down_delay_after_add        = "15m"  # Conservative
 cluster_autoscaler_scale_down_unneeded_time          = "15m"  # Conservative
 cluster_autoscaler_scale_down_utilization_threshold  = 0.3   # Conservative

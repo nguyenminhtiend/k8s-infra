@@ -1,0 +1,19 @@
+# Staging Environment Configuration
+# Balanced settings for staging/pre-production environments
+
+environment = "staging"
+aws_region  = "ap-southeast-1"
+
+# Cluster configuration
+cluster_name = "staging-cluster"
+vpc_cidr     = "10.0.0.0/16"
+
+# Cost optimization: Single NAT gateway for all AZs
+enable_nat_gateway = true
+single_nat_gateway = true
+
+# Use private subnets for EKS nodes (standard setup)
+use_public_subnets_for_eks = false
+
+# Note: Creates 1 NAT gateway (less HA but cost-effective)
+# Cost: ~$45/month + data transfer costs (saves $90/month vs production)

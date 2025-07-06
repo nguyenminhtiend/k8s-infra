@@ -1,0 +1,70 @@
+# =============================================================================
+# PHASE 3: AUTOSCALING & LOAD BALANCING - TESTING ENVIRONMENT
+# =============================================================================
+
+# Basic Configuration
+environment             = "testing"
+aws_region             = "ap-southeast-1"
+terraform_state_bucket = "your-terraform-state-bucket"  # Replace with your actual bucket name
+
+# Karpenter Configuration - Testing Optimized
+karpenter_enabled                    = true
+karpenter_version                    = "0.37.0"
+karpenter_node_instance_types        = ["t3.small", "t3.medium", "t3.large"]
+karpenter_node_capacity_type         = ["spot", "on-demand"]
+karpenter_spot_percentage            = 80  # Higher spot percentage for cost savings
+karpenter_max_nodes                  = 5   # Limited for testing
+karpenter_ttl_seconds_after_empty    = 30  # Fast scale-down
+karpenter_ttl_seconds_until_expired  = 86400  # 24 hours (short for testing)
+
+# AWS Load Balancer Controller Configuration
+alb_controller_enabled      = true
+alb_controller_version      = "1.8.1"
+alb_controller_replica_count = 1  # Single replica for testing
+
+# External DNS Configuration
+external_dns_enabled         = true
+external_dns_version         = "1.14.5"
+external_dns_domain_filters  = []  # Add your domains here if needed
+external_dns_source          = ["service", "ingress"]
+external_dns_txt_owner_id    = ""  # Will default to "external-dns-testing"
+
+# Cluster Autoscaler Configuration (Disabled - using Karpenter)
+cluster_autoscaler_enabled                           = false
+cluster_autoscaler_version                           = "1.30.0"
+cluster_autoscaler_scale_down_delay_after_add        = "5m"   # Faster for testing
+cluster_autoscaler_scale_down_unneeded_time          = "5m"   # Faster for testing
+cluster_autoscaler_scale_down_utilization_threshold  = 0.5
+
+# Monitoring Configuration
+enable_container_insights = true
+enable_cost_monitoring   = true
+
+# Node Configuration
+node_taints = []  # No taints for testing
+node_labels = {
+  "environment" = "testing"
+  "cost-optimization" = "enabled"
+  "workload-type" = "development"
+}
+
+# Security Configuration
+enable_irsa                    = true
+enable_pod_security_policy     = false
+
+# Networking Configuration
+enable_vpc_cni_prefix_delegation = true
+enable_network_policy           = false
+
+# Performance Configuration
+enable_gpu_support            = false
+enable_nvme_ssd_optimization  = true
+
+# Additional Tags
+additional_tags = {
+  "CostCenter"    = "development"
+  "Owner"         = "platform-team"
+  "Purpose"       = "testing-autoscaling"
+  "Backup"        = "not-required"
+  "Monitoring"    = "basic"
+}

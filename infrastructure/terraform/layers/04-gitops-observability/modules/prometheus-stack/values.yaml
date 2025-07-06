@@ -1,0 +1,322 @@
+# Prometheus Stack Configuration
+nameOverride: 'prometheus-stack'
+fullnameOverride: 'prometheus-stack'
+
+# Global Configuration
+global:
+  imageRegistry: ''
+  imagePullSecrets: []
+
+# Prometheus Configuration
+prometheus:
+  enabled: true
+
+  prometheusSpec:
+    # Retention configuration
+    retention: '${prometheus_retention_days}d'
+    retentionSize: ''
+
+    # Storage configuration
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ${storage_class_name}
+          accessModes: ['ReadWriteOnce']
+          resources:
+            requests:
+              storage: ${prometheus_storage_size}
+
+    # Resource configuration
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+
+    # Service Account configuration
+    serviceAccount:
+      create: true
+      name: prometheus-server
+      annotations:
+        eks.amazonaws.com/role-arn: ${prometheus_service_account_role}
+
+    # Monitoring configuration
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+
+    # Additional scrape configs
+    additionalScrapeConfigs:
+      - job_name: 'karpenter'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - karpenter
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: karpenter
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: http-metrics
+
+      - job_name: 'aws-load-balancer-controller'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - kube-system
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: aws-load-balancer-webhook-service
+
+    # External labels
+    externalLabels:
+      cluster: ${cluster_name}
+      environment: ${environment}
+
+# Grafana Configuration
+grafana:
+  enabled: true
+
+  # Admin configuration
+  adminPassword: ${grafana_admin_password}
+
+  # Service Account configuration
+  serviceAccount:
+    create: true
+    name: grafana
+    annotations:
+      eks.amazonaws.com/role-arn: ${grafana_service_account_role}
+
+  # Persistence configuration
+  persistence:
+    type: pvc
+    enabled: true
+    storageClassName: ${storage_class_name}
+    accessModes:
+      - ReadWriteOnce
+    size: ${grafana_storage_size}
+    finalizers:
+      - kubernetes.io/pvc-protection
+
+  # Resource configuration
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  # Data sources configuration
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-stack-prometheus:9090
+          access: proxy
+          isDefault: true
+        - name: Loki
+          type: loki
+          url: http://loki:3100
+          access: proxy
+
+  # Dashboard providers
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+  # Dashboards configuration
+  dashboards:
+    default:
+      # Kubernetes cluster monitoring
+      kubernetes-cluster:
+        gnetId: 3119
+        revision: 2
+        datasource: Prometheus
+
+      # Node exporter
+      node-exporter:
+        gnetId: 1860
+        revision: 27
+        datasource: Prometheus
+
+      # Karpenter dashboard
+      karpenter:
+        gnetId: 20186
+        revision: 1
+        datasource: Prometheus
+
+      # ArgoCD dashboard
+      argocd:
+        gnetId: 14584
+        revision: 1
+        datasource: Prometheus
+
+      # AWS Load Balancer Controller
+      aws-load-balancer-controller:
+        gnetId: 14623
+        revision: 1
+        datasource: Prometheus
+
+  # Grafana configuration
+  grafana.ini:
+    server:
+      root_url: '%(protocol)s://%(domain)s/'
+      serve_from_sub_path: false
+
+    auth:
+      disable_login_form: false
+      disable_signout_menu: false
+
+    auth.anonymous:
+      enabled: false
+
+    log:
+      mode: console
+      level: info
+
+    paths:
+      data: /var/lib/grafana/
+      logs: /var/log/grafana
+      plugins: /var/lib/grafana/plugins
+      provisioning: /etc/grafana/provisioning
+
+# AlertManager Configuration
+alertmanager:
+  enabled: true
+
+  alertmanagerSpec:
+    # Storage configuration
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ${storage_class_name}
+          accessModes: ['ReadWriteOnce']
+          resources:
+            requests:
+              storage: 5Gi
+
+    # Resource configuration
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+    # AlertManager configuration
+    config:
+      global:
+        smtp_smarthost: 'localhost:587'
+        smtp_from: 'alertmanager@${cluster_name}.local'
+
+      route:
+        group_by: ['alertname']
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 1h
+        receiver: 'web.hook'
+
+      receivers:
+        - name: 'web.hook'
+          webhook_configs:
+            - url: 'http://127.0.0.1:5001/'
+              send_resolved: true
+
+# Prometheus Node Exporter Configuration
+nodeExporter:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Prometheus State Metrics Configuration
+kubeStateMetrics:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Prometheus Operator Configuration
+prometheusOperator:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  # Service Account configuration
+  serviceAccount:
+    create: true
+    name: prometheus-operator
+    annotations:
+      eks.amazonaws.com/role-arn: ${prometheus_service_account_role}
+
+# Default rules configuration
+defaultRules:
+  create: true
+  rules:
+    alertmanager: true
+    etcd: false
+    configReloaders: true
+    general: true
+    k8s: true
+    kubeApiserverAvailability: true
+    kubeApiserverBurnrate: true
+    kubeApiserverHistogram: true
+    kubeApiserverSlos: true
+    kubelet: true
+    kubeProxy: false
+    kubePrometheusGeneral: true
+    kubePrometheusNodeRecording: true
+    kubernetesAbsent: true
+    kubernetesApps: true
+    kubernetesResources: true
+    kubernetesStorage: true
+    kubernetesSystem: true
+    kubeScheduler: false
+    kubeStateMetrics: true
+    network: true
+    node: true
+    nodeExporterAlerting: true
+    nodeExporterRecording: true
+    prometheus: true
+    prometheusOperator: true
+
+# Common labels
+commonLabels:
+  app.kubernetes.io/part-of: prometheus-stack
+  cluster: ${cluster_name}
+  environment: ${environment}

@@ -1,0 +1,4 @@
+TERRAFORM_STATE_BUCKET=$(cat terraform-state-bucket.txt)
+TERRAFORM_STATE_LOCK_TABLE=terraform-state-lock-eks
+AWS_REGION=ap-southeast-1
+AWS_PROFILE=terraform

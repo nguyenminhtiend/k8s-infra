@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-b-config
+  labels:
+    app: service-b
+data:
+  service.name: 'service-b'
+  service.version: 'v1.0.0'
+  environment: 'local'

@@ -1,0 +1,78 @@
+# =============================================================================
+# PHASE 3: AUTOSCALING & LOAD BALANCING - PRODUCTION ENVIRONMENT
+# =============================================================================
+
+# Basic Configuration
+environment             = "production"
+aws_region             = "ap-southeast-1"
+terraform_state_bucket = "your-terraform-state-bucket"  # Replace with your actual bucket name
+
+# Karpenter Configuration - Production Optimized
+karpenter_enabled                    = true
+karpenter_version                    = "0.37.0"
+karpenter_node_instance_types        = ["m5.large", "m5.xlarge", "m5.2xlarge", "c5.large", "c5.xlarge", "c5.2xlarge"]
+karpenter_node_capacity_type         = ["spot", "on-demand"]
+karpenter_spot_percentage            = 40  # Conservative for production
+karpenter_max_nodes                  = 50  # Production scale
+karpenter_ttl_seconds_after_empty    = 120  # Conservative scale-down
+karpenter_ttl_seconds_until_expired  = 2592000  # 30 days
+
+# AWS Load Balancer Controller Configuration
+alb_controller_enabled      = true
+alb_controller_version      = "1.8.1"
+alb_controller_replica_count = 3  # High availability
+
+# External DNS Configuration
+external_dns_enabled         = true
+external_dns_version         = "1.14.5"
+external_dns_domain_filters  = []  # Add your production domains here
+external_dns_source          = ["service", "ingress"]
+external_dns_txt_owner_id    = ""  # Will default to "external-dns-production"
+
+# Cluster Autoscaler Configuration (Backup to Karpenter)
+cluster_autoscaler_enabled                           = true  # Enabled as backup
+cluster_autoscaler_version                           = "1.30.0"
+cluster_autoscaler_scale_down_delay_after_add        = "15m"  # Conservative
+cluster_autoscaler_scale_down_unneeded_time          = "15m"  # Conservative
+cluster_autoscaler_scale_down_utilization_threshold  = 0.3   # Conservative
+
+# Monitoring Configuration
+enable_container_insights = true
+enable_cost_monitoring   = true
+
+# Node Configuration
+node_taints = [
+  {
+    key    = "workload-type"
+    value  = "production"
+    effect = "NoSchedule"
+  }
+]
+node_labels = {
+  "environment" = "production"
+  "cost-optimization" = "enabled"
+  "workload-type" = "production"
+  "high-availability" = "enabled"
+}
+
+# Security Configuration
+enable_irsa                    = true
+enable_pod_security_policy     = false
+
+# Networking Configuration
+enable_vpc_cni_prefix_delegation = true
+enable_network_policy           = true  # Enabled for production
+
+# Performance Configuration
+enable_gpu_support            = false
+enable_nvme_ssd_optimization  = true
+
+# Additional Tags
+additional_tags = {
+  "CostCenter"    = "production"
+  "Owner"         = "platform-team"
+  "Purpose"       = "production-autoscaling"
+  "Backup"        = "daily"
+  "Monitoring"    = "comprehensive"
+  "Compliance"    = "required"
+}

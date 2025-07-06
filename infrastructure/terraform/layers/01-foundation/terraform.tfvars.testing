@@ -1,0 +1,19 @@
+# Testing Environment Configuration
+# Cost-optimized settings for testing/development environments
+
+environment = "testing"
+aws_region  = "ap-southeast-1"
+
+# Cluster configuration
+cluster_name = "testing-cluster"
+vpc_cidr     = "10.0.0.0/16"
+
+# Cost optimization: Disable NAT gateways for testing
+enable_nat_gateway = false
+single_nat_gateway = false
+
+# Use public subnets for EKS nodes to maintain internet connectivity
+use_public_subnets_for_eks = true
+
+# Note: EKS nodes will be deployed in public subnets with internet access
+# This saves ~$135/month in NAT gateway costs while maintaining connectivity

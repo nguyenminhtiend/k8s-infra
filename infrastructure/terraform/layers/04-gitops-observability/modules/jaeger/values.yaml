@@ -1,0 +1,170 @@
+# Jaeger Configuration
+nameOverride: 'jaeger'
+fullnameOverride: 'jaeger'
+
+# All-in-one deployment for testing/staging
+# For production, consider using separate collector, query, and agent deployments
+allInOne:
+  enabled: true
+
+  # Image configuration
+  image:
+    repository: jaegertracing/all-in-one
+    tag: 1.52.0
+    pullPolicy: IfNotPresent
+
+  # Resource configuration
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  # Environment variables
+  env:
+    - name: COLLECTOR_ZIPKIN_HOST_PORT
+      value: ':9411'
+    - name: SPAN_STORAGE_TYPE
+      value: 'badger'
+    - name: BADGER_EPHEMERAL
+      value: 'false'
+    - name: BADGER_DIRECTORY_VALUE
+      value: '/badger/data'
+    - name: BADGER_DIRECTORY_KEY
+      value: '/badger/key'
+    - name: BADGER_SPAN_STORE_TTL
+      value: '${jaeger_retention_days * 24}h'
+
+  # Volume mounts
+  volumeMounts:
+    - name: jaeger-storage
+      mountPath: /badger
+
+  # Volumes
+  volumes:
+    - name: jaeger-storage
+      persistentVolumeClaim:
+        claimName: jaeger-storage-pvc
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    ports:
+      - name: http-query
+        port: 16686
+        targetPort: 16686
+        protocol: TCP
+      - name: jaeger-thrift
+        port: 14268
+        targetPort: 14268
+        protocol: TCP
+      - name: jaeger-grpc
+        port: 14250
+        targetPort: 14250
+        protocol: TCP
+      - name: zipkin
+        port: 9411
+        targetPort: 9411
+        protocol: TCP
+      - name: jaeger-binary
+        port: 6832
+        targetPort: 6832
+        protocol: UDP
+      - name: jaeger-compact
+        port: 6831
+        targetPort: 6831
+        protocol: UDP
+
+  # Service Account
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: ${service_account_role_arn}
+    name: jaeger
+
+  # Node selector for specific node types if needed
+  nodeSelector: {}
+
+  # Tolerations
+  tolerations: []
+
+  # Affinity
+  affinity: {}
+
+# Agent configuration (for production use)
+agent:
+  enabled: false
+
+# Collector configuration (for production use)
+collector:
+  enabled: false
+
+# Query configuration (for production use)
+query:
+  enabled: false
+
+# Cassandra storage (for production use)
+cassandra:
+  enabled: false
+
+# Elasticsearch storage (for production use)
+elasticsearch:
+  enabled: false
+
+# Kafka configuration (for production use)
+kafka:
+  enabled: false
+
+# Storage configuration
+storage:
+  type: badger
+
+# Persistence for Badger storage
+persistence:
+  enabled: true
+  size: ${jaeger_storage_size}
+  storageClass: ${storage_class_name}
+  accessMode: ReadWriteOnce
+
+# Common labels
+commonLabels:
+  app.kubernetes.io/part-of: jaeger
+  cluster: ${cluster_name}
+  environment: ${environment}
+
+# Additional configuration for Jaeger
+jaeger:
+  # Sampling configuration
+  sampling:
+    strategies: |
+      {
+        "default_strategy": {
+          "type": "probabilistic",
+          "param": 0.1
+        },
+        "per_service_strategies": [
+          {
+            "service": "important-service",
+            "type": "probabilistic",
+            "param": 1.0
+          }
+        ]
+      }
+
+
+# PersistentVolumeClaim for Jaeger storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jaeger-storage-pvc
+  namespace: jaeger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ${storage_class_name}
+  resources:
+    requests:
+      storage: ${jaeger_storage_size}

@@ -1,0 +1,50 @@
+# Production Environment Configuration
+environment    = "production"
+project_name   = "k8s-infra"
+aws_region     = "ap-southeast-1"
+
+# Terraform State Configuration
+terraform_state_bucket = "your-terraform-state-bucket"
+
+# EKS Cluster Configuration
+kubernetes_version = "1.30"
+
+# API endpoint configuration - restricted public access for production
+enable_public_access = true
+public_access_cidrs  = [
+  # Replace with your office/VPN CIDR blocks
+  # "203.0.113.0/24",  # Example office IP range
+  # "198.51.100.0/24"  # Example VPN IP range
+  "0.0.0.0/0"  # Update this with actual IP ranges
+]
+
+# Logging configuration - comprehensive for production
+enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+log_retention_days       = 90
+
+# Add-on versions (specify exact versions for production)
+vpc_cni_version        = null  # Set to specific version in production
+coredns_version        = null  # Set to specific version in production
+kube_proxy_version     = null  # Set to specific version in production
+ebs_csi_driver_version = null  # Set to specific version in production
+
+# Node Group Configuration
+enable_system_taints = true  # Enable taints for production workload isolation
+
+# Developer Access Configuration
+developer_principal_arns = [
+  # Add your developer user/role ARNs here
+  # "arn:aws:iam::123456789012:user/developer1",
+  # "arn:aws:iam::123456789012:role/DeveloperRole"
+]
+developer_external_id = "production-external-id-change-me"  # Set unique external ID
+ecr_repository_prefix = "microservices/"
+create_readonly_role  = true
+
+# Additional tags
+additional_tags = {
+  CostCenter   = "production"
+  Purpose      = "production-workloads"
+  Compliance   = "required"
+  BackupPolicy = "daily"
+}

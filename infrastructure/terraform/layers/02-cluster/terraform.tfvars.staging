@@ -1,0 +1,43 @@
+# Staging Environment Configuration
+environment    = "staging"
+project_name   = "k8s-infra"
+aws_region     = "ap-southeast-1"
+
+# Terraform State Configuration
+terraform_state_bucket = "your-terraform-state-bucket"
+
+# EKS Cluster Configuration
+kubernetes_version = "1.30"
+
+# API endpoint configuration - allow public access for staging
+enable_public_access = true
+public_access_cidrs  = ["0.0.0.0/0"]
+
+# Logging configuration - standard for staging
+enabled_cluster_log_types = ["api", "audit", "authenticator"]
+log_retention_days       = 14
+
+# Add-on versions (null = latest)
+vpc_cni_version        = null
+coredns_version        = null
+kube_proxy_version     = null
+ebs_csi_driver_version = null
+
+# Node Group Configuration
+enable_system_taints = true  # Enable taints for staging environment
+
+# Developer Access Configuration
+developer_principal_arns = [
+  # Add your developer user/role ARNs here
+  # "arn:aws:iam::123456789012:user/developer1",
+  # "arn:aws:iam::123456789012:role/DeveloperRole"
+]
+developer_external_id = null
+ecr_repository_prefix = "microservices/"
+create_readonly_role  = true
+
+# Additional tags
+additional_tags = {
+  CostCenter = "staging"
+  Purpose    = "pre-production"
+}

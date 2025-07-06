@@ -1,0 +1,43 @@
+# Testing Environment Configuration
+environment    = "testing"
+project_name   = "k8s-infra"
+aws_region     = "ap-southeast-1"
+
+# Terraform State Configuration
+terraform_state_bucket = "terraform-state-eks-1751637494"
+
+# EKS Cluster Configuration
+kubernetes_version = "1.30"
+
+# API endpoint configuration - allow public access for testing
+enable_public_access = true
+public_access_cidrs  = ["0.0.0.0/0"]
+
+# Logging configuration - minimal for cost optimization
+enabled_cluster_log_types = ["api", "audit"]
+log_retention_days       = 7
+
+# Add-on versions (null = latest)
+vpc_cni_version        = null
+coredns_version        = null
+kube_proxy_version     = null
+ebs_csi_driver_version = null
+
+# Node Group Configuration
+enable_system_taints = false  # Disable taints for testing flexibility
+
+# Developer Access Configuration
+developer_principal_arns = [
+  # Add your developer user/role ARNs here
+  # "arn:aws:iam::123456789012:user/developer1",
+  # "arn:aws:iam::123456789012:role/DeveloperRole"
+]
+developer_external_id = null
+ecr_repository_prefix = "microservices/"
+create_readonly_role  = true  # Create readonly role for testing
+
+# Additional tags
+additional_tags = {
+  CostCenter = "testing"
+  Purpose    = "development"
+}

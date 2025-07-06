@@ -1,0 +1,19 @@
+# Production Environment Configuration
+# Production-ready settings with high availability
+
+environment = "production"
+aws_region  = "ap-southeast-1"
+
+# Cluster configuration
+cluster_name = "production-cluster"
+vpc_cidr     = "10.0.0.0/16"
+
+# High availability: Enable NAT gateways (one per AZ)
+enable_nat_gateway = true
+single_nat_gateway = false
+
+# Use private subnets for EKS nodes (production standard)
+use_public_subnets_for_eks = false
+
+# Note: Creates 3 NAT gateways for high availability
+# Cost: ~$135/month + data transfer costs

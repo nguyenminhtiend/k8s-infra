@@ -1,0 +1,35 @@
+# Common Configuration
+environment = "testing"
+project_name = "k8s-infra"
+aws_region = "ap-southeast-1"
+terraform_state_bucket = "your-terraform-state-bucket-name"  # Update this to match your bucket name
+
+# ArgoCD Configuration
+argocd_chart_version = "5.51.6"
+argocd_admin_password = "ArgoCD@Testing123!"  # Change this for production
+
+# Optional: GitHub Integration (comment out if not using)
+# argocd_github_org = "your-github-org"
+# argocd_github_repo = "k8s-gitops"
+# argocd_github_token = "your-github-token"
+
+# Prometheus Stack Configuration
+prometheus_chart_version = "56.6.2"
+grafana_admin_password = "Grafana@Testing123!"  # Change this for production
+prometheus_retention_days = 15
+prometheus_storage_size = "20Gi"
+grafana_storage_size = "10Gi"
+
+# Jaeger Configuration
+jaeger_chart_version = "2.1.0"
+jaeger_retention_days = 7
+jaeger_storage_size = "10Gi"
+
+# Loki Configuration
+loki_retention_days = 30
+loki_storage_size = "20Gi"
+
+# GitOps Configuration (optional)
+# gitops_repo_url = "https://github.com/your-org/k8s-gitops.git"
+# gitops_repo_branch = "main"
+# gitops_repo_path = "applications"

@@ -1,0 +1,184 @@
+# ArgoCD Configuration
+global:
+  image:
+    tag: "v2.9.3"
+
+# Controller Configuration
+controller:
+  serviceAccount:
+    create: true
+    name: argocd-application-controller
+    annotations:
+      eks.amazonaws.com/role-arn: ${service_account_role_arn}
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Server Configuration
+server:
+  serviceAccount:
+    create: true
+    name: argocd-server
+    annotations:
+      eks.amazonaws.com/role-arn: ${service_account_role_arn}
+
+  # Insecure mode for easier access behind load balancer
+  insecure: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+
+  ingress:
+    enabled: false
+
+  config:
+    # Global configuration
+    url: "https://argocd-server.argocd.svc.cluster.local"
+
+    # OIDC configuration (optional)
+    oidc.config: |
+      name: AWS
+      issuer: ${cluster_oidc_issuer_url}
+      clientId: sts.amazonaws.com
+      clientSecret: ""
+      requestedScopes: ["openid", "profile", "email"]
+      requestedIDTokenClaims: {"groups": {"essential": true}}
+
+    # Repository configuration
+    %{~ if github_org != "" && github_repo != "" ~}
+    repositories: |
+      - url: https://github.com/${github_org}/${github_repo}.git
+        name: ${github_repo}
+        type: git
+        %{~ if github_token != "" ~}
+        password: ${github_token}
+        username: git
+        %{~ endif ~}
+    %{~ endif ~}
+
+    # Application configuration
+    application.instanceLabelKey: argocd.argoproj.io/instance
+
+# Repository Server Configuration
+repoServer:
+  serviceAccount:
+    create: true
+    name: argocd-repo-server
+    annotations:
+      eks.amazonaws.com/role-arn: ${service_account_role_arn}
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Application Set Controller Configuration
+applicationSet:
+  enabled: true
+
+  serviceAccount:
+    create: true
+    name: argocd-applicationset-controller
+    annotations:
+      eks.amazonaws.com/role-arn: ${service_account_role_arn}
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Notifications Controller Configuration
+notifications:
+  enabled: true
+
+  serviceAccount:
+    create: true
+    name: argocd-notifications-controller
+    annotations:
+      eks.amazonaws.com/role-arn: ${service_account_role_arn}
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Redis Configuration
+redis:
+  enabled: true
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Dex Configuration (for SSO)
+dex:
+  enabled: false
+
+# Configs
+configs:
+  secret:
+    # Admin password hash
+    argocdServerAdminPassword: ${argocd_admin_password}
+
+    # Additional secrets can be added here
+    %{~ if github_token != "" ~}
+    github.password: ${github_token}
+    %{~ endif ~}
+
+  # Configure policies
+  rbac:
+    policy.default: role:readonly
+    policy.csv: |
+      p, role:admin, applications, *, */*, allow
+      p, role:admin, clusters, *, *, allow
+      p, role:admin, repositories, *, *, allow
+      p, role:admin, certificates, *, *, allow
+      p, role:admin, projects, *, *, allow
+      p, role:admin, accounts, *, *, allow
+      p, role:admin, gpgkeys, *, *, allow
+      p, role:admin, logs, *, *, allow
+      p, role:admin, exec, *, *, allow
+      g, argocd-admins, role:admin
+      g, ${cluster_name}:system:masters, role:admin
+
+  # Configure cluster
+  cluster:
+    name: ${cluster_name}
+    server: https://kubernetes.default.svc
+
+# Resource limits for the whole installation
+resources:
+  limits:
+    cpu: 2
+    memory: 4Gi
+  requests:
+    cpu: 1
+    memory: 2Gi

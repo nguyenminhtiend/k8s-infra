@@ -42,14 +42,16 @@ terraform output cluster_endpoint
 **Current State (Post-Phase 2):**
 
 ```
-Internet → ALB → EKS Cluster → Single t3.micro node → Pods
+Internet → EKS Cluster → Single t3.micro node → Pods
 ```
 
 **Target State (Post-Phase 3):**
 
 ```
-Internet → Route53 → ALB (Auto-provisioned) → EKS Cluster → Karpenter-managed nodes → Optimized pods
+Internet → EKS Cluster → Karpenter-managed nodes → Optimized pods
 ```
+
+**Note:** Phase 3 installs the AWS Load Balancer Controller and External DNS capabilities, but actual load balancers are only created when you deploy services that request them (via service annotations or ingress resources).
 
 ## 🔧 Phase 3 Configuration Files
 

@@ -10,20 +10,19 @@ resource "kubernetes_namespace" "argocd" {
   }
 }
 
-# ArgoCD IAM Role for Service Account (IRSA)
-module "argocd_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+# ArgoCD IAM Role for Pod Identity
+module "argocd_pod_identity" {
+  source = "../../../../modules/pod-identity/base"
 
-  role_name = "${var.cluster_name}-argocd-role"
+  cluster_name         = var.cluster_name
+  environment          = var.environment
+  service_account_name = "argocd-server"
+  namespace            = "argocd"
 
-  attach_external_dns_policy = true
-
-  oidc_providers = {
-    main = {
-      provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["argocd:argocd-server", "argocd:argocd-application-controller"]
-    }
-  }
+  # Add specific policies for ArgoCD
+  policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  ]
 
   tags = var.tags
 }
@@ -45,7 +44,7 @@ resource "helm_release" "argocd" {
       cluster_name             = var.cluster_name
       environment              = var.environment
       argocd_admin_password    = var.argocd_admin_password
-      service_account_role_arn = module.argocd_irsa.iam_role_arn
+      service_account_role_arn = module.argocd_pod_identity.role_arn
       github_org               = var.argocd_github_org
       github_repo              = var.argocd_github_repo
       github_token             = var.argocd_github_token
@@ -54,7 +53,7 @@ resource "helm_release" "argocd" {
 
   depends_on = [
     kubernetes_namespace.argocd,
-    module.argocd_irsa
+    module.argocd_pod_identity
   ]
 }
 

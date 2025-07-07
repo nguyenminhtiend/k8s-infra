@@ -28,10 +28,7 @@ output "developer_ecr_access_policy_arn" {
   value       = aws_iam_policy.developer_ecr_access.arn
 }
 
-output "developer_irsa_assume_policy_arn" {
-  description = "ARN of the developer IRSA assume policy"
-  value       = aws_iam_policy.developer_irsa_assume.arn
-}
+# No IRSA outputs needed - using Pod Identity
 
 output "kubeconfig_role_arn" {
   description = "Role ARN to use in kubeconfig for developers"

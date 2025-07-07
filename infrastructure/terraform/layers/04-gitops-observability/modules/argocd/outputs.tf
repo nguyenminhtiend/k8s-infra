@@ -16,7 +16,7 @@ output "argocd_namespace" {
 
 output "argocd_service_account_role_arn" {
   description = "ARN of the IAM role for ArgoCD service account"
-  value       = module.argocd_irsa.iam_role_arn
+  value       = module.argocd_pod_identity.role_arn
 }
 
 output "argocd_nodeport_service" {

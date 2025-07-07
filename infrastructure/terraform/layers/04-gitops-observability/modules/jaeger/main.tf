@@ -10,18 +10,19 @@ resource "kubernetes_namespace" "jaeger" {
   }
 }
 
-# Jaeger IAM Role for Service Account (IRSA)
-module "jaeger_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+# Jaeger IAM Role for Pod Identity
+module "jaeger_pod_identity" {
+  source = "../../../../modules/pod-identity/base"
 
-  role_name = "${var.cluster_name}-jaeger-role"
+  cluster_name         = var.cluster_name
+  environment          = var.environment
+  service_account_name = "jaeger"
+  namespace            = "jaeger"
 
-  oidc_providers = {
-    main = {
-      provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["jaeger:jaeger"]
-    }
-  }
+  # Add specific policies for Jaeger
+  policy_arns = [
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  ]
 
   tags = var.tags
 }
@@ -60,14 +61,14 @@ resource "helm_release" "jaeger" {
       environment              = var.environment
       jaeger_retention_days    = var.jaeger_retention_days
       jaeger_storage_size      = var.jaeger_storage_size
-      service_account_role_arn = module.jaeger_irsa.iam_role_arn
+      service_account_role_arn = module.jaeger_pod_identity.role_arn
       storage_class_name       = kubernetes_storage_class.jaeger_storage.metadata[0].name
     })
   ]
 
   depends_on = [
     kubernetes_namespace.jaeger,
-    module.jaeger_irsa,
+    module.jaeger_pod_identity,
     kubernetes_storage_class.jaeger_storage
   ]
 }

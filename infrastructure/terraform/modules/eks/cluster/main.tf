@@ -95,23 +95,7 @@ resource "aws_eks_addon" "pod_identity" {
   })
 }
 
-# OIDC Identity Provider for IRSA (kept for backward compatibility)
-data "tls_certificate" "eks_cluster_tls" {
-  url = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
-}
-
-resource "aws_iam_openid_connect_provider" "eks_oidc_provider" {
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.eks_cluster_tls.certificates[0].sha1_fingerprint]
-  url             = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
-
-  tags = merge(var.tags, {
-    Name        = "EKS-OIDC-Provider-${var.cluster_name}"
-    Environment = var.environment
-    Module      = "eks/cluster"
-    ManagedBy   = "terraform"
-  })
-}
+# No OIDC provider needed - Pod Identity handles authentication directly
 
 # EKS Add-ons
 resource "aws_eks_addon" "vpc_cni" {

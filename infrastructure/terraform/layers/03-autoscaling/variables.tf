@@ -197,8 +197,8 @@ variable "node_labels" {
 }
 
 # Security Configuration
-variable "enable_irsa" {
-  description = "Enable IRSA for service accounts"
+variable "enable_pod_identity" {
+  description = "Enable Pod Identity for service accounts"
   type        = bool
   default     = true
 }

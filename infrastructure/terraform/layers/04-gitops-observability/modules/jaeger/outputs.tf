@@ -15,7 +15,7 @@ output "jaeger_namespace" {
 
 output "jaeger_service_account_role_arn" {
   description = "ARN of the IAM role for Jaeger service account"
-  value       = module.jaeger_irsa.iam_role_arn
+  value       = module.jaeger_pod_identity.role_arn
 }
 
 output "jaeger_helm_release_name" {

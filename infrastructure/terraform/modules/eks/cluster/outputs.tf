@@ -38,15 +38,7 @@ output "cluster_certificate_authority_data" {
   value       = aws_eks_cluster.cluster.certificate_authority[0].data
 }
 
-output "cluster_oidc_issuer_url" {
-  description = "The OIDC issuer URL for the EKS cluster"
-  value       = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
-}
-
-output "oidc_provider_arn" {
-  description = "The ARN of the OIDC provider for the EKS cluster"
-  value       = aws_iam_openid_connect_provider.eks_oidc_provider.arn
-}
+# OIDC outputs removed - using Pod Identity instead
 
 output "cluster_status" {
   description = "The status of the EKS cluster"

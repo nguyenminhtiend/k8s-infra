@@ -119,33 +119,7 @@ resource "aws_iam_policy" "developer_ecr_access" {
   })
 }
 
-# Developer IRSA assume role policy
-resource "aws_iam_policy" "developer_irsa_assume" {
-  name        = "EKS-Developer-IRSA-Assume-${var.environment}"
-  description = "Policy to allow developers to assume IRSA roles"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "sts:AssumeRole"
-        ]
-        Resource = [
-          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/EKS-${var.cluster_name}-ServiceAccount-*"
-        ]
-      }
-    ]
-  })
-
-  tags = merge(var.tags, {
-    Name        = "EKS-Developer-IRSA-Assume-${var.environment}"
-    Environment = var.environment
-    Module      = "iam/developer-roles"
-    ManagedBy   = "terraform"
-  })
-}
+# No IRSA policies needed - Pod Identity handles authentication directly
 
 # Attach policies to developer base role
 resource "aws_iam_role_policy_attachment" "developer_eks_access" {
@@ -158,10 +132,7 @@ resource "aws_iam_role_policy_attachment" "developer_ecr_access" {
   policy_arn = aws_iam_policy.developer_ecr_access.arn
 }
 
-resource "aws_iam_role_policy_attachment" "developer_irsa_assume" {
-  role       = aws_iam_role.developer_base.name
-  policy_arn = aws_iam_policy.developer_irsa_assume.arn
-}
+# No IRSA policy attachment needed
 
 # Attach additional policies if provided
 resource "aws_iam_role_policy_attachment" "developer_additional_policies" {

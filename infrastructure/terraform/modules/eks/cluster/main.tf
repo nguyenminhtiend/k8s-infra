@@ -76,7 +76,26 @@ resource "aws_eks_cluster" "cluster" {
   })
 }
 
-# OIDC Identity Provider for IRSA
+# EKS Pod Identity Add-on (replaces OIDC/IRSA)
+resource "aws_eks_addon" "pod_identity" {
+  cluster_name                = aws_eks_cluster.cluster.name
+  addon_name                  = "eks-pod-identity-agent"
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [
+    aws_eks_cluster.cluster
+  ]
+
+  tags = merge(var.tags, {
+    Name        = "EKS-Addon-PodIdentity-${var.cluster_name}"
+    Environment = var.environment
+    Module      = "eks/cluster"
+    ManagedBy   = "terraform"
+  })
+}
+
+# OIDC Identity Provider for IRSA (kept for backward compatibility)
 data "tls_certificate" "eks_cluster_tls" {
   url = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
 }

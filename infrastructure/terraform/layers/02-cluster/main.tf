@@ -141,16 +141,14 @@ module "eks_node_groups" {
   ]
 }
 
-# Step 4: IRSA Base (uses OIDC from EKS cluster)
-module "irsa_base_example" {
-  source = "../../modules/irsa/base"
+# Step 4: Pod Identity Base (uses EKS Pod Identity)
+module "pod_identity_base_example" {
+  source = "../../modules/pod-identity/base"
 
-  cluster_name            = module.eks_cluster.cluster_name
-  environment             = var.environment
-  cluster_oidc_issuer_url = module.eks_cluster.cluster_oidc_issuer_url
-  oidc_provider_arn       = module.eks_cluster.oidc_provider_arn
+  cluster_name = module.eks_cluster.cluster_name
+  environment  = var.environment
 
-  # Example service account for testing IRSA
+  # Example service account for testing Pod Identity
   service_account_name = "test-service-account"
   namespace            = "default"
 

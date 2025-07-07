@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-Phase 2 deploys the core EKS infrastructure including the Kubernetes cluster, worker nodes, IAM roles, and IRSA (IAM Roles for Service Accounts) foundation. This phase builds on the VPC foundation from Phase 1.
+Phase 2 deploys the core EKS infrastructure including the Kubernetes cluster, worker nodes, IAM roles, and Pod Identity foundation (replacing IRSA). This phase builds on the VPC foundation from Phase 1.
 
 ## ✅ Prerequisites Check
 
@@ -99,9 +99,9 @@ terraform plan -var-file="terraform.tfvars.testing"
 #   - IAM roles and policies (5-8 resources)
 #   - EKS cluster (1 resource)
 #   - EKS node group (1 resource)
-#   - EKS add-ons (4 resources)
-#   - OIDC provider (1 resource)
-#   - IRSA test role (1 resource)
+#   - EKS add-ons (5 resources, including Pod Identity)
+#   - OIDC provider (1 resource, for backward compatibility)
+#   - Pod Identity role and association (2 resources)
 #   - Launch template (1 resource)
 #   - KMS key and alias (2 resources)
 #   - CloudWatch log group (1 resource)
@@ -163,14 +163,17 @@ kubectl get pods -n kube-system
 # - ebs-csi-controller-*
 ```
 
-### Step 3: Test IRSA Functionality
+### Step 3: Test Pod Identity Functionality
 
 ```bash
-# Check if OIDC provider is working
-kubectl get serviceaccounts -o yaml | grep eks.amazonaws.com
+# Check if Pod Identity addon is active
+kubectl get pods -n kube-system -l app.kubernetes.io/name=eks-pod-identity-agent
 
 # Test the example service account
 kubectl describe serviceaccount test-service-account
+
+# Verify Pod Identity association
+aws eks describe-pod-identity-association --cluster-name $(terraform output -raw cluster_name) --association-id $(terraform output -raw pod_identity_test_association_id)
 ```
 
 ### Step 4: Verify Developer Access (If Configured)

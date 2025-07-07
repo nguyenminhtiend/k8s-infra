@@ -10,38 +10,36 @@ resource "kubernetes_namespace" "monitoring" {
   }
 }
 
-# Prometheus Stack IAM Role for Service Account (IRSA)
-module "prometheus_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+# Prometheus Stack IAM Role for Pod Identity
+module "prometheus_pod_identity" {
+  source = "../../../../modules/pod-identity/base"
 
-  role_name = "${var.cluster_name}-prometheus-role"
+  cluster_name         = var.cluster_name
+  environment          = var.environment
+  service_account_name = "prometheus-server"
+  namespace            = "monitoring"
 
-  attach_external_dns_policy = true
-
-  oidc_providers = {
-    main = {
-      provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["monitoring:prometheus-server", "monitoring:prometheus-operator"]
-    }
-  }
+  # Add specific policies for Prometheus
+  policy_arns = [
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  ]
 
   tags = var.tags
 }
 
-# Grafana IAM Role for Service Account (IRSA)
-module "grafana_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+# Grafana IAM Role for Pod Identity
+module "grafana_pod_identity" {
+  source = "../../../../modules/pod-identity/base"
 
-  role_name = "${var.cluster_name}-grafana-role"
+  cluster_name         = var.cluster_name
+  environment          = var.environment
+  service_account_name = "grafana"
+  namespace            = "monitoring"
 
-  attach_external_dns_policy = true
-
-  oidc_providers = {
-    main = {
-      provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["monitoring:grafana"]
-    }
-  }
+  # Add specific policies for Grafana
+  policy_arns = [
+    "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+  ]
 
   tags = var.tags
 }
@@ -82,16 +80,16 @@ resource "helm_release" "prometheus_stack" {
       prometheus_storage_size         = var.prometheus_storage_size
       grafana_storage_size            = var.grafana_storage_size
       grafana_admin_password          = var.grafana_admin_password
-      prometheus_service_account_role = module.prometheus_irsa.iam_role_arn
-      grafana_service_account_role    = module.grafana_irsa.iam_role_arn
+      prometheus_service_account_role = module.prometheus_pod_identity.role_arn
+      grafana_service_account_role    = module.grafana_pod_identity.role_arn
       storage_class_name              = kubernetes_storage_class.prometheus_storage.metadata[0].name
     })
   ]
 
   depends_on = [
     kubernetes_namespace.monitoring,
-    module.prometheus_irsa,
-    module.grafana_irsa,
+    module.prometheus_pod_identity,
+    module.grafana_pod_identity,
     kubernetes_storage_class.prometheus_storage
   ]
 }

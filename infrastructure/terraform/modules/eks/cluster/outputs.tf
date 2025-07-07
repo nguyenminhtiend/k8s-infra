@@ -77,3 +77,13 @@ output "cloudwatch_log_group_arn" {
   description = "The ARN of the CloudWatch log group for cluster logs"
   value       = aws_cloudwatch_log_group.eks_cluster_log_group.arn
 }
+
+output "pod_identity_addon_arn" {
+  description = "The ARN of the EKS Pod Identity addon"
+  value       = aws_eks_addon.pod_identity.arn
+}
+
+output "pod_identity_addon_status" {
+  description = "The status of the EKS Pod Identity addon"
+  value       = aws_eks_addon.pod_identity.status
+}

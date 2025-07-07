@@ -91,15 +91,15 @@ output "developer_readonly_role_arn" {
   value       = module.developer_roles.developer_readonly_role_arn
 }
 
-# IRSA Outputs
-output "irsa_test_role_arn" {
-  description = "ARN of the test IRSA role"
-  value       = module.irsa_base_example.role_arn
+# Pod Identity Outputs
+output "pod_identity_test_role_arn" {
+  description = "ARN of the test Pod Identity role"
+  value       = module.pod_identity_base_example.role_arn
 }
 
-output "irsa_test_service_account_annotation" {
-  description = "Annotation for the test service account"
-  value       = module.irsa_base_example.service_account_annotation
+output "pod_identity_test_association_id" {
+  description = "ID of the test Pod Identity association"
+  value       = module.pod_identity_base_example.pod_identity_association_id
 }
 
 # Configuration Outputs

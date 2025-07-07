@@ -41,12 +41,12 @@ output "prometheus_helm_release_status" {
 
 output "prometheus_service_account_role_arn" {
   description = "ARN of the IAM role for Prometheus service account"
-  value       = module.prometheus_irsa.iam_role_arn
+  value       = module.prometheus_pod_identity.role_arn
 }
 
 output "grafana_service_account_role_arn" {
   description = "ARN of the IAM role for Grafana service account"
-  value       = module.grafana_irsa.iam_role_arn
+  value       = module.grafana_pod_identity.role_arn
 }
 
 output "prometheus_storage_class_name" {

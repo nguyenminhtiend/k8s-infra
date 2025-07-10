@@ -7,7 +7,6 @@ Phase 3 transforms your EKS cluster into an intelligent, auto-scaling platform w
 - **Karpenter**: Intelligent node provisioning and scaling
 - **AWS Load Balancer Controller**: Native AWS load balancer integration
 - **External DNS**: Automatic DNS management
-- **Cluster Autoscaler**: Fallback scaling mechanism
 
 ## ✅ Prerequisites Check
 
@@ -109,12 +108,11 @@ terraform init \
 terraform plan -var-file="terraform.tfvars.testing"
 
 # Expected resources to be created:
-# - ~25-30 resources including:
+# - ~22-27 resources including:
 #   - Karpenter IAM roles and policies (5-8 resources)
 #   - AWS Load Balancer Controller (3-5 resources)
 #   - External DNS (2-3 resources)
-#   - Cluster Autoscaler (2-3 resources)
-#   - Helm releases (4 resources)
+#   - Helm releases (3 resources)
 #   - Various ConfigMaps and RBAC (5-8 resources)
 ```
 
@@ -125,7 +123,7 @@ terraform plan -var-file="terraform.tfvars.testing"
 terraform apply -var-file="terraform.tfvars.testing"
 
 # When prompted, type 'yes' to confirm
-# Deployment takes approximately 15-20 minutes
+# Deployment takes approximately 10-15 minutes
 ```
 
 ### Step 4: Verify Core Components Installation
@@ -141,9 +139,6 @@ kubectl get pods -n kube-system | grep aws-load-balancer-controller
 
 # Check External DNS
 kubectl get pods -n kube-system | grep external-dns
-
-# Check Cluster Autoscaler (if enabled)
-kubectl get pods -n kube-system | grep cluster-autoscaler
 ```
 
 ## 🔍 Post-Deployment Validation
@@ -419,7 +414,7 @@ kubectl get nodes -w
 ## 📋 Phase 3 Completion Checklist
 
 - [ ] ✅ Terraform backend initialized successfully
-- [ ] ✅ All 25-30 resources created without errors
+- [ ] ✅ All 22-27 resources created without errors
 - [ ] ✅ Karpenter pods are Running
 - [ ] ✅ AWS Load Balancer Controller is Running
 - [ ] ✅ External DNS is Running (if configured)

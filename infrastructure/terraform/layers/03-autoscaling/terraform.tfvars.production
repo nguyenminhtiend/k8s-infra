@@ -29,8 +29,8 @@ external_dns_domain_filters  = []  # Add your production domains here
 external_dns_source          = ["service", "ingress"]
 external_dns_txt_owner_id    = ""  # Will default to "external-dns-production"
 
-# Cluster Autoscaler Configuration (Backup to Karpenter)
-cluster_autoscaler_enabled                           = true  # Enabled as backup
+# Cluster Autoscaler Configuration (Disabled - Using Karpenter only)
+cluster_autoscaler_enabled                           = false  # Using Karpenter only
 cluster_autoscaler_version                           = "1.33.0"
 cluster_autoscaler_scale_down_delay_after_add        = "15m"  # Conservative
 cluster_autoscaler_scale_down_unneeded_time          = "15m"  # Conservative

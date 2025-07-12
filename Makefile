@@ -102,10 +102,13 @@ quick-start: setup deploy ## Setup cluster and deploy services in one command
 	@echo "127.0.0.1 service-a.test service-b.test"
 
 # =============================================================================
-# TERRAFORM LOCAL TESTING COMMANDS
+# TERRAFORM LOCAL TESTING COMMANDS (LocalStack - AWS Infrastructure Only)
 # =============================================================================
+# NOTE: These commands test AWS infrastructure simulation via LocalStack
+# They are SEPARATE from Kind cluster and don't run real Kubernetes workloads
+# Use existing Kind commands (setup/deploy) for real Kubernetes testing
 
-terraform-local-setup: ## Setup LocalStack for Terraform testing
+terraform-local-setup: ## Setup LocalStack for AWS infrastructure testing
 	@echo "🔧 Setting up LocalStack for Terraform testing..."
 	@cd infrastructure/terraform/local && docker-compose up -d
 	@echo "⏳ Waiting for LocalStack to be ready..."
@@ -118,19 +121,19 @@ terraform-local-teardown: ## Teardown LocalStack environment
 	@cd infrastructure/terraform/local && docker-compose down -v
 	@echo "✅ LocalStack environment cleaned up"
 
-terraform-local-test: ## Run Terraform tests against LocalStack
-	@echo "🧪 Running Terraform tests..."
+terraform-local-test: ## Run Terraform tests against LocalStack (infrastructure only)
+	@echo "🧪 Running Terraform infrastructure tests..."
 	@cd infrastructure/terraform/local/layers/01-foundation && ../../../../local/scripts/tflocal test
 	@cd infrastructure/terraform/modules/networking/vpc && terraform test
 	@cd infrastructure/terraform/modules/networking/subnets && terraform test
-	@echo "✅ Terraform tests completed"
+	@echo "✅ Terraform infrastructure tests completed"
 
-terraform-local-plan: ## Plan Terraform changes against LocalStack
-	@echo "📋 Planning Terraform changes..."
-	@echo "Foundation layer:"
+terraform-local-plan: ## Plan Terraform infrastructure changes against LocalStack
+	@echo "📋 Planning Terraform infrastructure changes..."
+	@echo "Foundation layer (VPC, subnets, security groups):"
 	@cd infrastructure/terraform/local/layers/01-foundation && ../../../../local/scripts/tflocal plan -var-file="terraform.tfvars.local"
 	@echo ""
-	@echo "Cluster layer:"
+	@echo "Cluster layer (EKS simulation):"
 	@cd infrastructure/terraform/local/layers/02-cluster && ../../../../local/scripts/tflocal plan -var-file="terraform.tfvars.local"
 
 terraform-local-apply: ## Apply Terraform changes against LocalStack
@@ -162,9 +165,12 @@ terraform-local-destroy: ## Destroy all Terraform resources in LocalStack
 	@cd infrastructure/terraform/local/layers/01-foundation && ../../../../local/scripts/tflocal destroy -var-file="terraform.tfvars.local" -auto-approve || true
 	@echo "✅ Terraform resources destroyed"
 
-# Quick setup for Terraform local testing
-terraform-local-quick: terraform-local-setup terraform-local-apply ## Setup LocalStack and apply all Terraform configs
-	@echo "🎉 Terraform local testing environment is ready!"
+# Quick setup for Terraform local infrastructure testing
+terraform-local-quick: terraform-local-setup terraform-local-apply ## Setup LocalStack and test AWS infrastructure
+	@echo "🎉 LocalStack infrastructure testing environment is ready!"
 	@echo "💡 Use 'make terraform-local-status' to check the status"
 	@echo "💡 Use 'make terraform-local-teardown' to clean up"
+	@echo ""
+	@echo "⚠️  Note: This tests AWS infrastructure only (simulated)"
+	@echo "⚠️  For real Kubernetes testing, use: make setup && make deploy"
 

@@ -1,0 +1,19 @@
+# Local Testing Environment Configuration
+# Optimized for LocalStack testing
+
+environment = "local"
+aws_region  = "ap-southeast-1"
+
+# Cluster configuration
+cluster_name = "local-test-cluster"
+vpc_cidr     = "10.100.0.0/16"
+
+# Cost optimization for local testing
+enable_nat_gateway = false
+single_nat_gateway = false
+
+# Use public subnets to avoid NAT gateway dependency
+use_public_subnets_for_eks = true
+
+# Note: This configuration is designed for LocalStack testing
+# Resources are simulated locally without actual AWS costs

@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  localstack:
+    container_name: localstack-terraform-test
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"              # LocalStack Gateway
+      - "4510-4559:4510-4559"    # External services port range
+    environment:
+      # LocalStack configuration
+      - DEBUG=1
+      - SERVICES=s3,iam,sts,eks,ec2,cloudwatch,logs,kms
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - DATA_DIR=/tmp/localstack/data
+      - PERSISTENCE=1
+      
+      # AWS Configuration for testing
+      - AWS_DEFAULT_REGION=ap-southeast-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      
+      # Additional LocalStack settings
+      - SKIP_INFRA_DOWNLOADS=0
+      - LAMBDA_EXECUTOR=docker
+      - LAMBDA_REMOTE_DOCKER=false
+      
+      # Enable specific features for Terraform testing
+      - TERRAFORM_COMPATIBILITY_MODE=1
+      - DISABLE_CORS_CHECKS=1
+      
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./init:/etc/localstack/init/ready.d"
+    networks:
+      - localstack
+
+  # Optional: LocalStack Pro features (requires license)
+  # Uncomment and configure if you have LocalStack Pro
+  # localstack-pro:
+  #   container_name: localstack-pro
+  #   image: localstack/localstack-pro:3.7-amd64
+  #   ports:
+  #     - "4566:4566"
+  #   environment:
+  #     - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+  #     - SERVICES=s3,iam,sts,eks,ec2,cloudwatch,logs,kms,ecr,route53
+  #     - DEBUG=1
+  #     - DOCKER_HOST=unix:///var/run/docker.sock
+  #   volumes:
+  #     - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+
+networks:
+  localstack:
+    driver: bridge

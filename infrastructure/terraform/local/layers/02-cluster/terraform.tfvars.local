@@ -1,0 +1,16 @@
+# Local Cluster Testing Configuration
+# Simplified EKS cluster setup for LocalStack testing
+
+environment = "local"
+project_name = "k8s-infra"
+aws_region = "ap-southeast-1"
+
+# Use latest stable Kubernetes version for testing
+kubernetes_version = "1.33"
+
+# Additional tags for local testing
+additional_tags = {
+  Testing     = "true"
+  LocalStack  = "true"
+  CostOptimized = "true"
+}

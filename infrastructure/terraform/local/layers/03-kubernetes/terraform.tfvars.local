@@ -1,0 +1,12 @@
+# Local Kubernetes Configuration
+# Terraform configuration for Kind cluster
+
+environment = "local"
+kubernetes_context = "kind-local-cluster"
+
+# Service configuration
+service_a_replicas = 2
+service_b_replicas = 2
+
+# Enable monitoring for local testing
+enable_monitoring = true

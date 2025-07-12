@@ -138,7 +138,7 @@ output "kubeconfig_command" {
 # Developer Setup Instructions
 output "developer_setup_instructions" {
   description = "Instructions for developers to set up access"
-  value = <<-EOT
+  value       = <<-EOT
     # Developer Setup Instructions
 
     1. Configure AWS CLI with your credentials

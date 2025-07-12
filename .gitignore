@@ -94,3 +94,6 @@ Thumbs.db
 **/aws-credentials
 **/gcp-credentials.json
 **/service-account.json
+
+# Claude Code documentation
+CLAUDE.md
